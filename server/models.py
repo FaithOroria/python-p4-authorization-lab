@@ -22,8 +22,19 @@ class Article(db.Model, SerializerMixin):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __repr__(self):
-        return f'Article {self.id} by {self.author}'
+    def to_dict(self):
+        data = {
+            'id': self.id,
+            'author': self.author,
+            'title': self.title,
+            'content': self.content,
+            'preview': self.preview,
+            'minutes_to_read': self.minutes_to_read,
+            'is_member_only': self.is_member_only,
+            'date': self.date.isoformat() if self.date else None
+        }
+
+        return data
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -33,5 +44,11 @@ class User(db.Model, SerializerMixin):
 
     articles = db.relationship('Article', backref='user')
 
-    def __repr__(self):
-        return f'User {self.username}, ID {self.id}'
+    def to_dict(self):
+        data = {
+            'id': self.id,
+            'username': self.username,
+            'articles': [article.to_dict() for article in self.articles]
+        }
+
+        return data
